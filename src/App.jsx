@@ -1,13 +1,16 @@
 import blueUmbrella from "./assets/Umbrella/Blue umbrella.png";
 import pinkUmbrella from "./assets/Umbrella/Pink umbrella.png";
 import yellowUmbrella from "./assets/Umbrella/Yello umbrella.png";
-import uploadLogo from "../public/upload_icon.svg";
+import loader from "../public/loader_icon.svg";
 import { useState } from "react";
 import axios from "axios";
+import { MdClose } from "react-icons/md";
+import { LuUpload } from "react-icons/lu";
 function App() {
   const [selectedColor, setSelectedColor] = useState("blue");
   const [uploadedLogo, setUploadedLogo] = useState("");
   const [logoTitle, setLogoTitle] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const getLogoUrl = async (logo) => {
     try {
@@ -29,22 +32,30 @@ function App() {
     const logo = e.target.files[0];
     // console.log(logo);
     try {
+      setIsLoading(true);
       const logoUrl = await getLogoUrl(logo);
       setUploadedLogo(logoUrl);
+      setIsLoading(false);
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  const handleRemoveLogo = (e) => {
+    e.stopPropagation();
+    setUploadedLogo("");
+    setLogoTitle("");
   };
   console.log(uploadedLogo);
   return (
     <div
       className={`h-screen w-full flex items-center justify-center ${
         selectedColor === "blue"
-          ? "bg-blue-100"
+          ? "bg-blue-50"
           : selectedColor === "pink"
-          ? "bg-pink-100"
+          ? "bg-pink-50"
           : selectedColor === "yellow"
-          ? "bg-yellow-100"
+          ? "bg-yellow-50"
           : ""
       }`}
     >
@@ -63,7 +74,7 @@ function App() {
             }
             alt=""
           />
-          <div className="absolute bottom-6 left-1/2 overflow-hidden w-20 h-5 -translate-x-[50%]">
+          <div className="absolute bottom-6 left-1/2 overflow-hidden w-20 h-4 -translate-x-[50%]">
             {uploadedLogo && (
               <img
                 className="object-cover h-full w-full"
@@ -78,19 +89,19 @@ function App() {
             <div
               onClick={() => setSelectedColor("blue")}
               className={`h-5 w-5 rounded-full bg-blue-400 ${
-                selectedColor === "blue" && "border-[3px] border-white"
+                selectedColor === "blue" && "border-[3px] border-gray-300"
               }`}
             ></div>
             <div
               onClick={() => setSelectedColor("pink")}
               className={`h-5 w-5 rounded-full bg-pink-400 ${
-                selectedColor === "pink" && "border-[3px] border-white"
+                selectedColor === "pink" && "border-[3px] border-gray-300"
               }`}
             ></div>
             <div
               onClick={() => setSelectedColor("yellow")}
               className={`h-5 w-5 rounded-full bg-yellow-400 ${
-                selectedColor === "yellow" && "border-[3px] border-white"
+                selectedColor === "yellow" && "border-[3px] border-gray-300"
               }`}
             ></div>
           </div>
@@ -103,25 +114,38 @@ function App() {
               .png and .jpg files only. Max file size is 5MB
             </span>
           </div>
-          <div className="mt-6 py-2 px-4 rounded-md text-white font-medium">
-            <label
-              htmlFor="logo"
-              className={`flex items-center justify-center w-full gap-6 ${
-                selectedColor === "blue"
-                  ? "bg-blue-500"
-                  : selectedColor === "pink"
-                  ? "bg-pink-500"
-                  : selectedColor === "yellow"
-                  ? "bg-yellow-500"
-                  : ""
-              } text-white py-3 rounded cursor-pointer shadow-lg transition-colors duration-300`}
-            >
+
+          <div
+            className={`relative mt-6 flex items-center py-4 px-6 ${
+              selectedColor === "blue"
+                ? "bg-[#32B4E5]"
+                : selectedColor === "pink"
+                ? "bg-[#D9338C]"
+                : selectedColor === "yellow"
+                ? "bg-[#FED34A]"
+                : ""
+            } rounded-md text-white font-medium shadow-lg transition-colors duration-300`}
+          >
+            <label htmlFor="logo" className="cursor-pointer w-10">
               {/* Upload icon */}
               <span>
-                <img src={uploadLogo} className="w-5" alt="Upload Logo" />
+                {isLoading ? (
+                  <img src={loader} className="animate-spin w-5"></img>
+                ) : (
+                  <LuUpload className="text-xl w-5" />
+                )}
               </span>
-              {logoTitle ? logoTitle.slice(0, 15) + "..." : "UPLOAD LOGO"}
             </label>
+
+            {logoTitle ? logoTitle?.slice(0, 12) + "..." : "UPLOAD LOGO"}
+            {uploadedLogo && (
+              <span
+                onClick={handleRemoveLogo}
+                className="absolute right-0 mr-3 w-6 text-2xl"
+              >
+                <MdClose />
+              </span>
+            )}
             <input
               type="file"
               id="logo"
